@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Catálogo de Productos - MiPC</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <link rel="stylesheet" href="styles.css"> <!-- Tu archivo de estilos principal -->
+</head>
+
+<body>
+  <!-- Barra de navegación -->
+  <nav class="navbar">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">MiPC Lista</a> <!-- Enlace de vuelta a la página principal -->
+      <button class="menu-toggle" id="menuToggle"> ☰ </button>
+      <!-- Botón flotante para abrir el carrito -->
+      <button id="openCartBtn" class="open-cart-btn"><i class="bi bi-cart4 me-2"></i> </button>
+    </div>
+  </nav>
+
+  <!-- Menú lateral offcanvas -->
+  <div class="offcanvas" id="offcanvasNav">
+    <div class="offcanvas-header">
+      <h5 class="offcanvas-title">MiPC Lista</h5>
+      <button type="button" class="close-btn" id="closeOffcanvas">×</button>
+    </div>
+    <div class="offcanvas-body">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" href="index.html">Inicio</a></li>
+        <li class="nav-item"><a class="nav-link" href="catalog.html">Catálogo de Productos</a></li>
+        <li class="nav-item"><a class="nav-link" href="#servicios">Catálogo de Servicios</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#soporte">Soporte Técnico</a></li>
+        <li class="nav-item"><a class="nav-link" href="index.html#contacto">Contacto</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Carrito lateral derecho -->
+  <div class="cart-sidebar" id="cartSidebar">
+    <div class="cart-header">
+      <h5><i class="bi bi-cart4 me-2"></i>Carrito de Compras</h5>
+      <button class="close-cart" id="closeCart">×</button>
+    </div>
+    <div class="cart-body" id="cartItems"></div>
+    <div class="cart-footer">
+      <p>Total: <span id="cartTotal">S/ 0.00</span></p>
+      <button class="btn btn-success w-100" data-bs-toggle="modal" data-bs-target="#modalPago">Finalizar Compra</button>
+    </div>
+  </div>
+
+  <!-- Fondo oscuro -->
+  <div class="fondo-oscuro" id="fondoPago" style="display:none; 
+    position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:999;">
+  </div>
+    <!-- ===== VENTANA DE PAGO ESTILO TIENDA ===== -->
+  <div class="modal fade" id="modalPago" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Completar Pago</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4">
+          <form id="formPago">
+            <!-- Datos del cliente -->
+            <h6 class="mb-3">Datos del Cliente</h6>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Nombre Completo</label>
+                <input type="text" class="form-control" id="nombrePago" placeholder="Juan Pérez" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">DNI</label>
+                <input type="text" class="form-control" id="dniPago" placeholder="12345678" pattern="[0-9]{8}" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Correo Electrónico</label>
+                <input type="email" class="form-control" id="correoPago" placeholder="correo@ejemplo.com" required>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label">Dirección de Entrega</label>
+                <input type="text" class="form-control" id="direccionPago" placeholder="Av. Principal 123" required>
+              </div>
+            </div>
+
+            <hr class="my-4">
+
+            <!-- Método de pago -->
+            <h6 class="mb-3">Método de Pago</h6>
+            <div class="mb-3">
+              <select class="form-select" id="metodoPago" required>
+                <option value="">Seleccione un método</option>
+                <option value="tarjeta">Tarjeta de crédito/débito</option>
+                <option value="transferencia">Transferencia bancaria</option>
+                <option value="yape">Yape / Plin</option>
+              </select>
+            </div>
+            <!-- Resumen -->
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <span class="fw-bold">Total a Pagar:</span>
+              <span class="text-primary fw-bold fs-5" id="totalPago">S/ 0.00</span>
+            </div>
+
+            <button type="submit" class="btn btn-success w-100 py-2">
+              Pagar Ahora
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Sección de Productos (Catálogo Completo) -->
+  <section id="productos" class="container my-5 pt-5">
+    <h2 class="text-center mb-4">Nuestro Catálogo de Productos</h2>
+    <div class="row mb-4">
+      <div class="col-md-6 mb-3">
+        <input type="text" id="productSearch" class="form-control" placeholder="Buscar productos...">
+      </div>
+      <div class="col-md-6 mb-3">
+        <select id="productCategory" class="form-select">
+          <option value="all">Todas las categorías</option>
+          <option value="pcs">PCs y Laptops</option>
+          <option value="componentes">Componentes</option>
+          <option value="perifericos">Periféricos</option>
+          <option value="almacenamiento">Almacenamiento</option>
+          <option value="redes">Redes</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn btn-primary mb-4 d-block mx-auto"
+        data-bs-toggle="modal" data-bs-target="#modalContacto">
+      Contáctame
+    </button>
+    <div class="products-grid">
+      <!-- Los primeros 4 productos se han movido a index.html -->
+
+      <!-- Tarjeta de Producto: Intel Core i5-12400 -->
+      <div class="grid-item" data-category="componentes">
+        <div class="card product-card shadow-sm">
+          <img src="intel.webp" class="card-img-top" alt="Procesador Intel">
+          <div class="card-body">
+            <h5 class="card-title">Intel Core i5-12400</h5>
+            <p class="card-text">Procesador Intel Core i5-12400, 2.5Ghz, 6 cores, LGA1700</p>
+            <p class="text-primary fw-bold">S/ 799.90</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detI5">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta de Producto: MSI GeForce RTX 3050 -->
+      <div class="grid-item" data-category="componentes">
+        <div class="card product-card shadow-sm">
+          <img src="grafica.jpg" class="card-img-top" alt="Tarjeta Gráfica">
+          <div class="card-body">
+            <h5 class="card-title">MSI GeForce RTX 3050</h5>
+            <p class="card-text">Tarjeta de video Msi GeForce Nvidia RTX 3050 6GB GDDR6 Ventus 2X OC</p>
+            <p class="text-primary fw-bold">S/ 849</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detRtx3050">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta de Producto: SSD CotriTech M.2 -->
+      <div class="grid-item" data-category="almacenamiento">
+        <div class="card product-card shadow-sm">
+          <img src="disco solido.webp" class="card-img-top" alt="Disco SSD">
+          <div class="card-body">
+            <h5 class="card-title">SSD CotriTech M.2</h5>
+            <p class="card-text">Disco Sólido SSD CotriTech M.2, PCIe NVMe, 256GB</p>
+            <p class="text-primary fw-bold">S/ 85.50</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detSsd256">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta de Producto: Intel Core i9-13900KF -->
+      <div class="grid-item" data-category="componentes">
+        <div class="card product-card shadow-sm">
+          <img src="inttel 9.jpg" class="card-img-top" alt="Procesador Intel">
+          <div class="card-body">
+            <h5 class="card-title">Intel Core i9-13900KF</h5>
+            <p class="card-text">Procesador Intel Core i9-13900KF 2.20/5.80GHz 36MB SmartCache LGA1700</p>
+            <p class="text-primary fw-bold">S/ 2,419</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detI9">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta de Producto: Placa Madre Asrock Z890 -->
+      <div class="grid-item" data-category="componentes">
+        <div class="card product-card shadow-sm">
+          <img src="ATX.webp" class="card-img-top" alt="Placa Madre">
+          <div class="card-body">
+            <h5 class="card-title">Placa Madre Asrock Z890</h5>
+            <p class="card-text">Placa madre Asrock Z890 PRO-A LGA1851, DDR5, ATX</p>
+            <p class="text-primary fw-bold">S/ 999</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detZ890">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta de Producto: Disco Duro Seagate 1TB -->
+      <div class="grid-item" data-category="almacenamiento">
+        <div class="card product-card shadow-sm">
+          <img src="SEAGATE.webp" class="card-img-top" alt="Disco Duro">
+          <div class="card-body">
+            <h5 class="card-title">Disco Duro Seagate 1TB</h5>
+            <p class="card-text">Disco duro 1TB Seagate, SkyHawk interno, plomo</p>
+            <p class="text-primary fw-bold">S/ 257</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detSeagate1TB">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tarjeta de Producto: Gabinete Cooler Master -->
+      <div class="grid-item" data-category="componentes">
+        <div class="card product-card shadow-sm">
+          <img src="Cooler.webp" class="card-img-top" alt="Gabinete">
+          <div class="card-body">
+            <h5 class="card-title">Gabinete Cooler Master</h5>
+            <p class="card-text">Gabinete Cooler Master HAF 700 EVO ARGB, Mini-ITX / Micro-ATX negro</p>
+            <p class="text-primary fw-bold">S/ 599</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detHaf700">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nuevo Producto: Teclado Mecánico Gamer -->
+      <div class="grid-item" data-category="perifericos">
+        <div class="card product-card shadow-sm">
+          <img src="TecladoGame.png" class="card-img-top" alt="Teclado Mecánico Gamer">
+          <div class="card-body">
+            <h5 class="card-title">Teclado Mecánico Gamer</h5>
+            <p class="card-text">Teclado mecánico RGB con switches Outemu Blue, ideal para gaming.</p>
+            <p class="text-primary fw-bold">S/ 180</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detTecladoGamer">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nuevo Producto: Disco Duro Externo Seagate 2TB -->
+      <div class="grid-item" data-category="almacenamiento">
+        <div class="card product-card shadow-sm">
+          <img src="DiscoDuro2TB.jpg" class="card-img-top" alt="Disco Duro Externo Seagate 2TB">
+          <div class="card-body">
+            <h5 class="card-title">Disco Duro Externo Seagate 2TB</h5>
+            <p class="card-text">Almacenamiento portátil de alta capacidad para todos tus archivos.</p>
+            <p class="text-primary fw-bold">S/ 350</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detHddExterno">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nuevo Producto: Webcam Logitech C920 -->
+      <div class="grid-item" data-category="perifericos">
+        <div class="card product-card shadow-sm">
+          <img src="Webcam Logitech C920.webp" class="card-img-top" alt="Webcam Logitech C920">
+          <div class="card-body">
+            <h5 class="card-title">Webcam Logitech C920</h5>
+            <p class="card-text">Full HD 1080p para videollamadas y streaming de alta calidad.</p>
+            <p class="text-primary fw-bold">S/ 220</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detWebcamLogitech">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nuevo Producto: Router Wi-Fi TP-Link Archer C6 -->
+      <div class="grid-item" data-category="redes">
+        <div class="card product-card shadow-sm">
+          <img src="Wi-Fi TP-Link Archer C6.jpg" class="card-img-top" alt="Router Wi-Fi TP-Link Archer C6">
+          <div class="card-body">
+            <h5 class="card-title">Router Wi-Fi TP-Link Archer C6</h5>
+            <p class="card-text">Wi-Fi AC1200 de doble banda para una conexión rápida y estable.</p>
+            <p class="text-primary fw-bold">S/ 150</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detRouterTPLink">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Nuevo Producto: Adaptador USB Wi-Fi TP-Link AC1300 -->
+      <div class="grid-item" data-category="redes">
+        <div class="card product-card shadow-sm">
+          <img src="Adaptador USB Wi-Fi.jpg" class="card-img-top" alt="Adaptador USB Wi-Fi TP-Link AC1300">
+          <div class="card-body">
+            <h5 class="card-title">Adaptador USB Wi-Fi TP-Link AC1300</h5>
+            <p class="card-text">Adaptador USB de doble banda para Wi-Fi de alta velocidad en tu PC o laptop.</p>
+            <p class="text-primary fw-bold">S/ 80</p>
+            <a href="#" class="btn btn-outline-primary add-to-cart">Comprar</a>
+            <button class="btn btn-outline-sec" data-bs-toggle="modal" data-bs-target="#detWifiAdapter">Detalles</button>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Sección de Catálogo de Servicios (Movida a catalog.html) -->
+  <section id="servicios" class="container my-5 py-5 bg-light">
+    <h2 class="text-center mb-5">Nuestro Catálogo de Servicios</h2>
+    <div class="row text-center">
+      <div class="col-md-4 mb-4">
+        <div class="card-3d">
+          <div class="card-3d-inner">
+            <i class="fa-solid fa-laptop-code"></i>
+            <h5 class="mt-3">Instalación y Configuración de Software</h5>
+            <p>Instalación de sistemas operativos, drivers, antivirus y software especializado.</p>
+            <p class="text-primary fw-bold">Desde S/ 50</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card-3d">
+          <div class="card-3d-inner">
+            <i class="fa-solid fa-wrench"></i>
+            <h5 class="mt-3">Mantenimiento Preventivo y Correctivo</h5>
+            <p>Limpieza interna, optimización de rendimiento y reparación de hardware.</p>
+            <p class="text-primary fw-bold">Desde S/ 80</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card-3d">
+          <div class="card-3d-inner">
+            <i class="fa-solid fa-shield-alt"></i>
+            <h5 class="mt-3">Eliminación de Virus y Malware</h5>
+            <p>Diagnóstico y eliminación de amenazas, con recomendaciones de seguridad.</p>
+            <p class="text-primary fw-bold">Desde S/ 70</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card-3d">
+          <div class="card-3d-inner">
+            <i class="fa-solid fa-network-wired"></i>
+            <h5 class="mt-3">Configuración de Redes</h5>
+            <p>Instalación y configuración de redes cableadas e inalámbricas para hogar u oficina.</p>
+            <p class="text-primary fw-bold">Desde S/ 100</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card-3d">
+          <div class="card-3d-inner">
+            <i class="fa-solid fa-hdd"></i>
+            <h5 class="mt-3">Recuperación de Datos</h5>
+            <p>Servicio de recuperación de información de discos duros y unidades de almacenamiento.</p>
+            <p class="text-primary fw-bold">Cotizar</p>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-4 mb-4">
+        <div class="card-3d">
+          <div class="card-3d-inner">
+            <i class="fa-solid fa-chalkboard-teacher"></i>
+            <h5 class="mt-3">Asesoría Técnica Personalizada</h5>
+            <p>Orientación para la compra de equipos, mejoras y soluciones tecnológicas.</p>
+            <p class="text-primary fw-bold">S/ 40/hora</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Sección de Detalle de Productos (Tabla) -->
+  <div class="container my-5">
+    <h3 class="text-center mb-4">Detalle de Productos</h3>
+    <div class="table-responsive">
+      <table class="table table-striped table-bordered">
+        <thead class="table-dark">
+          <tr>
+            <th>#</th>
+            <th>Producto</th>
+            <th>Descripción</th>
+            <th>Precio</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>1</td>
+            <td>PC Gamer Ryzen 7</td>
+            <td>RTX 4060, 16GB RAM, 1TB SSD</td>
+            <td>S/ 4,999</td>
+          </tr>
+          <tr>
+            <td>2</td>
+            <td>Laptop Dell Inspiron</td>
+            <td>Core i5, 8GB, SSD 512GB, Win 11</td>
+            <td>S/ 2,799</td>
+          </tr>
+          <tr>
+            <td>3</td>
+            <td>Monitor LG 24</td>
+            <td>Full HD, IPS, HDMI/VGA</td>
+            <td>S/ 599</td>
+          </tr>
+          <tr>
+            <td>4</td>
+            <td>Intel Core i5-12400</td>
+            <td>2.5Ghz, 6 cores, LGA1700</td>
+            <td>S/ 799.90</td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Intel Core i3-13100</td>
+            <td>4.5Ghz, 4+4 cores, LGA1700</td>
+            <td>S/ 679.90</td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Tarjeta gráfica MSI RTX 3050</td>
+            <td>6GB GDDR6 Ventus 2X OC</td>
+            <td>S/ 849</td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>SSD CotriTech 256GB</td>
+            <td>M.2, PCIe NVMe</td>
+            <td>S/ 85.50</td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>Memoria RAM DDR4 16GB</td>
+            <td>Corsair Vengeance LPX DDR4 3200MHz (2x8GB)</td>
+            <td>S/ 280</td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>Teclado Mecánico Gamer</td>
+            <td>Mecánico RGB con switches Outemu Blue</td>
+            <td>S/ 180</td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>Disco Duro Externo Seagate 2TB</td>
+            <td>Almacenamiento portátil de alta capacidad (USB 3.0)</td>
+            <td>S/ 350</td>
+          </tr>
+          <tr>
+            <td>11</td>
+            <td>Webcam Logitech C920</td>
+            <td>Full HD 1080p con micrófono estéreo</td>
+            <td>S/ 220</td>
+          </tr>
+          <tr>
+            <td>12</td>
+            <td>Router Wi-Fi TP-Link Archer C6</td>
+            <td>Wi-Fi AC1200 doble banda, 4 puertos Gigabit</td>
+            <td>S/ 150</td>
+          </tr>
+          <tr>
+            <td>13</td>
+            <td>Adaptador USB Wi-Fi TP-Link AC1300</td>
+            <td>Adaptador USB de doble banda para Wi-Fi de alta velocidad</td>
+            <td>S/ 80</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal de Contacto -->
+  <div class="modal fade" id="modalContacto" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Envíanos tu consulta</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form>
+            <div class="mb-3">
+              <label class="form-label">Nombre</label>
+              <input type="text" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Correo</label>
+              <input type="email" class="form-control" required>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Mensaje</label>
+              <textarea class="form-control" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary w-100">Enviar</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MODALES DE DETALLES (PARA PRODUCTOS EN CATALOG.HTML) ===== -->
+  <div class="modal fade" id="detI5" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>Intel Core i5-12400</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• 6 cores / 12 hilos</li>
+        <li>• Base 2,5 GHz / Boost 4,4 GHz</li>
+        <li>• Cache 18 MB</li>
+        <li>• iGPU UHD 730</li>
+        <li>• TDP 65 W</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detRtx3050" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>MSI GeForce RTX 3050</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• VRAM 6 GB GDDR6</li>
+        <li>• CUDA Cores 2304</li>
+        <li>• Boost 1477 MHz</li>
+        <li>• Bus 96-bit</li>
+        <li>• Salidas 1×HDMI 2.1 / 3×DP 1.4</li>
+        <li>• PSU recom. 550 W</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detSsd256" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>SSD CotriTech 256 GB</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• Formato M.2 2280</li>
+        <li>• PCIe 3.0 ×4</li>
+        <li>• Lectura 2000 MB/s</li>
+        <li>• Escritura 1200 MB/s</li>
+        <li>• TBW 150 TB</li>
+        <li>• Garantía 3 años</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detI9" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>Intel Core i9-13900KF</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• 8P + 16E cores (32 hilos)</li>
+        <li>• Boost 5,8 GHz</li>
+        <li>• Cache 36 MB</li>
+        <li>• Sin iGPU (KF)</li>
+        <li>• TDP 125 W / Turbo 253 W</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detZ890" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>Asrock Z890 PRO-A DDR5</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• Chipset Intel Z890</li>
+        <li>• Socket LGA 1851</li>
+        <li>• 4×DDR5 7600 MHz</li>
+        <li>• 1×PCIe 5.0 ×16</li>
+        <li>• 4×M.2 + 6×SATA</li>
+        <li>• LAN 2.5 GbE + WiFi 7</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detSeagate1TB" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>HDD Seagate SkyHawk 1 TB</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• 7200 RPM · 64 MB caché</li>
+        <li>• Optimizado CCTV 24/7</li>
+        <li>• Consumo 5,6 W</li>
+        <li>• MTBF 1 M h</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detHaf700" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>Cooler Master HAF 700 EVO</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• Soporta Mini-ITX → E-ATX</li>
+        <li>• 2×200 mm + 4×120 mm ARGB</li>
+        <li>• GPU máx. 490 mm</li>
+        <li>• Radiador hasta 480 mm</li>
+        <li>• Vidrio panorámico</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detMemoriaRam" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>Memoria RAM DDR4 16GB</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• Tipo: DDR4</li>
+        <li>• Capacidad: 16GB (2x8GB)</li>
+        <li>• Frecuencia: 3200MHz</li>
+        <li>• Marca: Corsair Vengeance LPX</li>
+        <li>• Ideal para gaming y multitarea</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detTecladoGamer" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>Teclado Mecánico Gamer</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• Tipo: Mecánico</li>
+        <li>• Switches: Outemu Blue</li>
+        <li>• Iluminación: RGB personalizable</li>
+        <li>• Conexión: USB</li>
+        <li>• Diseño: Compacto TKL (Tenkeyless)</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detHddExterno" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>Disco Duro Externo Seagate 2TB</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• Capacidad: 2TB</li>
+        <li>• Interfaz: USB 3.0</li>
+        <li>• Velocidad: 5400 RPM</li>
+        <li>• Compatibilidad: Windows/Mac</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detWebcamLogitech" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>Webcam Logitech C920</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• Resolución: 1080p Full HD</li>
+        <li>• Micrófono: Estéreo dual</li>
+        <li>• Enfoque: Automático</li>
+        <li>• Campo de visión: 78°</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detRouterTPLink" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>Router Wi-Fi TP-Link Archer C6</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• Estándar: Wi-Fi AC1200</li>
+        <li>• Bandas: Doble banda (2.4GHz y 5GHz)</li>
+        <li>• Puertos: 4x LAN Gigabit</li>
+        <li>• Antenas: 4x Externas</li>
+      </ul></div>
+    </div></div>
+  </div>
+
+  <div class="modal fade" id="detWifiAdapter" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered"><div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title}>Adaptador USB Wi-Fi TP-Link AC1300</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body"><ul class="list-unstyled mb-0">
+        <li>• Estándar: Wi-Fi AC1300</li>
+        <li>• Interfaz: USB 3.0</li>
+        <li>• Bandas: Doble banda (2.4GHz y 5GHz)</li>
+        <li>• Velocidad: Hasta 867 Mbps (5GHz) + 400 Mbps (2.4GHz)</li>
+      </ul></div>
+    </div></div>
+  </div>
+  <!-- ===== FIN MODALES ===== -->
+
+  <!-- Pie de página -->
+  <footer>
+    <p>&copy; 2025 MiPC Lista. Todos los derechos reservados.</p>
+    <p>Correo: soporte@mipclista.com | Tel: +51 987 654 321</p>
+    <p>Av. Principal 456, Lima, Perú</p>
+  </footer>
+
+  <!-- Botón flotante de WhatsApp -->
+  <a href="https://wa.me/51987654321" class="whatsapp-float" target="_blank">
+    <img src="https://cdn-icons-png.flaticon.com/512/124/124034.png" alt="WhatsApp" width="50">
+  </a>
+
+  <!-- Scripts de Bootstrap y tu script específico del catálogo -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="catalog.js"></script>
+</body>
+</html>
